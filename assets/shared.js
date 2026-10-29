@@ -123,12 +123,44 @@ window.Rifa = (() => {
     setupInstall(host);
   }
 
-  // PWA install: Chrome/Edge/Android fire beforeinstallprompt; iOS Safari has no
-  // install API, so the button opens instructions instead.
+  // PWA install. Chromium browsers (Chrome, Edge, Samsung Internet, Opera) fire
+  // beforeinstallprompt, so the button appears only when installing is possible
+  // and opens the native dialog. Other browsers have no install API: the button
+  // is always shown there and opens step-by-step instructions for that browser.
   let deferredPrompt = null;
+  const ua = navigator.userAgent;
   const isStandalone = () => window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
-  const isIos = () => /iphone|ipad|ipod/i.test(navigator.userAgent)
-    || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const hasNativePrompt = 'onbeforeinstallprompt' in window;
+
+  const INSTALL_HELP = {
+    ios: {
+      title: 'Instalar no iPhone / iPad',
+      steps: 'Toque em <b>Compartilhar</b> (o quadrado com a seta para cima) e depois em <b>Adicionar à Tela de Início</b>.',
+    },
+    safariMac: {
+      title: 'Instalar no Mac',
+      steps: 'No Safari, abra o menu <b>Arquivo</b> e escolha <b>Adicionar ao Dock</b>.',
+    },
+    firefoxAndroid: {
+      title: 'Instalar no Android',
+      steps: 'Toque no menu <b>⋮</b> e depois em <b>Instalar</b> (ou <b>Adicionar à tela inicial</b>).',
+    },
+    firefoxDesktop: {
+      title: 'Instalar no computador',
+      steps: 'O Firefox para computador não instala sites como app. Abra <b>rifa-campori.vercel.app</b> no <b>Chrome</b> ou no <b>Edge</b> e clique em <b>Instalar</b>.<br><small class="muted">Se preferir continuar no Firefox, fixe a aba ou adicione aos favoritos.</small>',
+    },
+    chromium: {
+      title: 'Instalar o app',
+      steps: 'Abra o menu do navegador (<b>⋮</b>) e procure <b>Instalar app</b> ou <b>Adicionar à tela inicial</b>.<br><small class="muted">Se a opção não aparecer, o app provavelmente já está instalado neste aparelho.</small>',
+    },
+  };
+
+  function installHelpKey() {
+    if (/iphone|ipad|ipod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) return 'ios';
+    if (/firefox|fxios/i.test(ua)) return /android/i.test(ua) ? 'firefoxAndroid' : 'firefoxDesktop';
+    if (/safari/i.test(ua) && !/chrome|chromium|crios|edg/i.test(ua)) return 'safariMac';
+    return 'chromium';
+  }
 
   function setupInstall(host) {
     const buttons = () => $$('.install-btn', host);
@@ -140,7 +172,7 @@ window.Rifa = (() => {
       show(true);
     });
     window.addEventListener('appinstalled', () => { deferredPrompt = null; show(false); toast('App instalado! ⛺'); });
-    if (isIos()) show(true);
+    if (!hasNativePrompt) show(true);
 
     buttons().forEach((b) => b.addEventListener('click', async () => {
       if (deferredPrompt) {
@@ -149,12 +181,12 @@ window.Rifa = (() => {
         deferredPrompt = null;
         show(false);
       } else {
-        showIosHelp();
+        showInstallHelp(INSTALL_HELP[installHelpKey()]);
       }
     }));
   }
 
-  function showIosHelp() {
+  function showInstallHelp({ title, steps }) {
     let dlg = $('#installHelp');
     if (!dlg) {
       dlg = document.createElement('dialog');
@@ -163,13 +195,15 @@ window.Rifa = (() => {
       dlg.innerHTML = `
         <div class="modal-body center">
           <div class="big-emoji">📲</div>
-          <h3>Instalar no iPhone</h3>
-          <p>No <b>Safari</b>, toque em <b>Compartilhar</b> (o quadrado com a seta para cima) e depois em <b>Adicionar à Tela de Início</b>.</p>
+          <h3></h3>
+          <p></p>
           <button class="btn primary" type="button">Entendi</button>
         </div>`;
       dlg.querySelector('button').addEventListener('click', () => dlg.close());
       document.body.appendChild(dlg);
     }
+    dlg.querySelector('h3').textContent = title;
+    dlg.querySelector('p').innerHTML = steps; // static strings defined above, never user input
     dlg.showModal();
   }
 
