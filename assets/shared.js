@@ -22,6 +22,15 @@ window.Rifa = (() => {
   const listText = (nums) => (nums.length <= 1 ? String(nums[0] ?? '')
     : `${nums.slice(0, -1).join(', ')} e ${nums[nums.length - 1]}`);
 
+  // api.whatsapp.com keeps the text intact; the wa.me redirect garbles emoji
+  // into "�" on WhatsApp Web/Desktop, so messages also avoid emoji entirely.
+  function whatsappLink(phone, text = '') {
+    const digits = String(phone || '').replace(/\D/g, '');
+    if (!digits) return null;
+    const full = digits.length <= 11 ? `55${digits}` : digits;
+    return `https://api.whatsapp.com/send?phone=${full}${text ? `&text=${encodeURIComponent(text)}` : ''}`;
+  }
+
   const fmtDateTime = (iso) => (iso ? new Date(iso).toLocaleString('pt-BR', {
     day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit',
   }) : '');
@@ -227,5 +236,5 @@ window.Rifa = (() => {
   }
   renderNav();
 
-  return { CFG, DEMO, client, $, $$, esc, brl, listText, fmtDateTime, toast, myOrders, initNav, setGalleryVisible };
+  return { CFG, DEMO, client, $, $$, esc, brl, listText, fmtDateTime, whatsappLink, toast, myOrders, initNav, setGalleryVisible };
 })();

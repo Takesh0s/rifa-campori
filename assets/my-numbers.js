@@ -3,7 +3,7 @@
 (() => {
   'use strict';
 
-  const { DEMO, client, $, esc, brl, listText, fmtDateTime, toast, myOrders } = window.Rifa;
+  const { DEMO, client, $, esc, brl, listText, fmtDateTime, toast, myOrders, whatsappLink } = window.Rifa;
 
   const STATUS = {
     paid: { label: 'Pago ✅', css: 'paid' },
@@ -15,7 +15,7 @@
 
   let settings = { whatsapp: '5561984936058', title: 'Rifa Solidária – Campori 2027' };
 
-  const whatsappUrl = (text) => `https://wa.me/${settings.whatsapp}${text ? `?text=${encodeURIComponent(text)}` : ''}`;
+  const whatsappUrl = (text) => whatsappLink(settings.whatsapp, text);
 
   async function fetchStatuses(saved) {
     if (DEMO) {
@@ -51,13 +51,13 @@
     summary.classList.toggle('hidden', paidNumbers.length === 0);
     summary.innerHTML = paidNumbers.length ? `
       <span class="summary-chip">${paidNumbers.length} ${paidNumbers.length === 1 ? 'número garantido' : 'números garantidos'}</span>
-      <p style="margin:10px 0 0">Obrigado por ajudar nosso clube a chegar ao Campori! Boa sorte com o${paidNumbers.length > 1 ? 's números' : ' número'} <b>${listText(paidNumbers)}</b> 🍀</p>` : '';
+      <p style="margin:10px 0 0">Obrigado por me ajudar a chegar ao Campori! Boa sorte com o${paidNumbers.length > 1 ? 's números' : ' número'} <b>${listText(paidNumbers)}</b> 🍀</p>` : '';
 
     $('#empty').classList.toggle('hidden', orders.length > 0);
     $('#orders').innerHTML = orders.map((o) => {
       const st = STATUS[o.status] || { label: 'Desconhecido', css: 'cancelled' };
       const wa = o.status === 'pending' && o.method === 'in_person'
-        ? whatsappUrl(`Olá, Luiz! 👋 Sobre minha reserva *#${o.code}* da ${settings.title}: números ${listText(o.numbers)}. Como fica melhor pra gente combinar o pagamento?`)
+        ? whatsappUrl(`Olá, Luiz! Sobre minha reserva *#${o.code}* da *${settings.title}* (números ${listText(o.numbers)}): como fica melhor pra gente combinar o pagamento?`)
         : null;
       return `
         <article class="card order-card ${st.css}">

@@ -3,7 +3,7 @@
 (() => {
   'use strict';
 
-  const { DEMO, client: sb, $, esc, brl, listText, toast, myOrders } = window.Rifa;
+  const { DEMO, client: sb, $, esc, brl, listText, toast, myOrders, whatsappLink } = window.Rifa;
 
   const DEFAULT_SETTINGS = {
     title: 'Rifa Solidária – Campori 2027', subtitle: 'Campori DSA', prize: 'R$ 500',
@@ -58,21 +58,21 @@
     const total = brl(numbers.length * s.ticket_price, true);
     const qtd = numbers.length === 1 ? '1 número' : `${numbers.length} números`;
     const lines = [
-      'Olá, Luiz! 👋',
-      `Acabei de escolher meus números na *${s.title}* ⛺`,
+      'Olá, Luiz!',
+      `Escolhi meus números na *${s.title}*:`,
       '',
-      `🎟️ *Números:* ${listText(numbers)}`,
-      `💰 *Total:* ${total} (${qtd})`,
-      `🙋 *Nome:* ${name}`,
+      `*Números:* ${listText(numbers)}`,
+      `*Total:* ${total} (${qtd})`,
+      `*Nome:* ${name}`,
       '',
-      'Prefiro pagar *em mãos* 🤝',
       code
-        ? `Já deixei reservado no site (código *#${code}*). Como fica melhor pra gente combinar?`
-        : 'Consegue reservar esses números pra mim? Como fica melhor pra gente combinar?',
+        ? `Prefiro pagar *em mãos*. Já deixei reservado no site (código *#${code}*).`
+        : 'Prefiro pagar *em mãos*. Consegue reservar esses números pra mim?',
+      'Como fica melhor pra gente combinar?',
       '',
-      'Bora levar o clube pro Campori! 🔥',
+      'Boa sorte no Campori!',
     ];
-    return `https://wa.me/${s.whatsapp}?text=${encodeURIComponent(lines.join('\n'))}`;
+    return whatsappLink(s.whatsapp, lines.join('\n'));
   }
 
   async function loadAll() {
@@ -196,7 +196,7 @@
       pct >= 50 ? '🏕️ Passamos da metade do caminho! Obrigado a todos!' :
       pct >= 25 ? '🥾 Já estamos na trilha! Cada número nos leva mais longe.' :
       pct >= 10 ? '🔥 A fogueira já está acesa! Bora manter ela queimando.' :
-      '⛺ Cada número ajuda a montar nossa barraca no Campori!';
+      '⛺ Cada número me ajuda a montar a barraca no Campori!';
     $('#progressMsg').textContent = msg;
 
     if (pct >= 100 && !state.celebratedGoal) { state.celebratedGoal = true; setTimeout(() => confettiBurst(true), 900); }
@@ -208,9 +208,9 @@
     const list = state.supporters;
     const wall = $('#wall');
     $('#supportersCount').textContent = list.length
-      ? (list.length === 1 ? '1 pessoa já está ajudando a levar nosso clube ao Campori.'
-        : `${list.length} pessoas já estão ajudando a levar nosso clube ao Campori.`)
-      : 'Seja a primeira pessoa a ajudar nosso clube a chegar ao Campori!';
+      ? (list.length === 1 ? '1 pessoa já está me ajudando a chegar ao Campori.'
+        : `${list.length} pessoas já estão me ajudando a chegar ao Campori.`)
+      : 'Seja a primeira pessoa a me ajudar a chegar ao Campori!';
     if (!list.length) { wall.innerHTML = ''; return; }
     const chip = (s) => `<span class="thanks${newNames.includes(s.name) ? ' new' : ''}">💛 ${esc(s.name)}${s.qty > 1 ? `<em>×${s.qty}</em>` : ''}</span>`;
     const half = Math.ceil(list.length / 2);

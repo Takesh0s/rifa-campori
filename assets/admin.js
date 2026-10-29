@@ -36,12 +36,7 @@
     return t.status;
   }
 
-  function waLink(phone, text = '') {
-    const d = String(phone || '').replace(/\D/g, '');
-    if (!d) return null;
-    const full = d.length <= 11 ? `55${d}` : d;
-    return `https://wa.me/${full}${text ? `?text=${encodeURIComponent(text)}` : ''}`;
-  }
+  const waLink = (phone, text) => window.Rifa.whatsappLink(phone, text);
 
   $('#loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -171,7 +166,7 @@
   function renderOrderDetail(o) {
     const el = $('#orderDetail');
     if (!o) { el.innerHTML = '<p class="muted">Pedido não encontrado.</p>'; return; }
-    const wa = waLink(o.buyer_phone, `Olá, ${o.buyer_name.split(' ')[0]}! Aqui é o Luiz, da Rifa do Campori ⛺`);
+    const wa = waLink(o.buyer_phone, `Olá, ${o.buyer_name.split(' ')[0]}! Aqui é o Luiz, da Rifa do Campori.`);
     el.innerHTML = `
       <h2>Pedido #${esc(o.code)}</h2>
       <p style="margin:0"><span class="badge ${o.status}">${STATUS[o.status]}</span> <span class="muted">${METHOD[o.method]}</span></p>
