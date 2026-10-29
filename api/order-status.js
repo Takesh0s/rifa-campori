@@ -1,6 +1,6 @@
 import { db } from '../lib/supabase.js';
 import { send } from '../lib/http.js';
-import { getPayment, syncPayment } from '../lib/mercadopago.js';
+import { getOrder, syncOrder } from '../lib/mercadopago.js';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -20,7 +20,7 @@ export default async function handler(req, res) {
   let { status } = order;
   if (status === 'pending' && order.method === 'pix' && order.mp_payment_id) {
     try {
-      const result = await syncPayment(db, await getPayment(order.mp_payment_id));
+      const result = await syncOrder(db, await getOrder(order.mp_payment_id));
       if (result === 'paid' || result === 'already_paid') status = 'paid';
       else if (result === 'conflict') status = 'conflict';
     } catch (err) {

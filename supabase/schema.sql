@@ -50,7 +50,7 @@ create table if not exists public.orders (
   method         text not null check (method in ('pix','in_person','manual')),
   status         text not null default 'pending'
                  check (status in ('pending','paid','expired','cancelled','conflict')),
-  mp_payment_id  text,
+  mp_payment_id  text,             -- Mercado Pago order id (ORD…)
   expires_at     timestamptz,
   notes          text,
   created_at     timestamptz not null default now(),
@@ -106,7 +106,7 @@ alter table public.settings
     ticket_price > 0
     and total_numbers between 1 and 10000
     and goal_amount > 0
-    and pix_minutes between 5 and 1440
+    and pix_minutes between 30 and 1440
     and hold_hours between 1 and 720
     and max_per_order between 1 and 100
     and whatsapp ~ '^\d{12,13}$'

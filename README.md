@@ -38,7 +38,7 @@ Stack: HTML/CSS/JS puro + Supabase (Postgres, Auth, Realtime) + funções server
 | Escrita só por **funções SQL** (`security definer`) | O site nunca altera tabela direto. As regras (número livre? limite por pedido?) ficam num lugar só, dentro do banco. |
 | `SELECT ... FOR UPDATE` na reserva | Se duas pessoas clicarem no mesmo número no mesmo segundo, só uma consegue; a outra recebe "acabou de ser escolhido". |
 | Chave `service_role` só na Vercel | Ela ignora o RLS. Por isso fica em variável de ambiente, nunca no navegador nem no GitHub. |
-| Webhook **reconsulta** o pagamento no MP | Não confiamos no corpo da notificação; pegamos só o ID e perguntamos ao Mercado Pago se está `approved` e com o valor certo. |
+| Webhook **reconsulta** o pagamento no MP | Não confiamos no corpo da notificação; pegamos só o ID e perguntamos ao Mercado Pago se o pedido está `processed` e com o valor certo. |
 | `/api/order-status` também consulta o MP | Plano B: se o webhook atrasar, a tela do Pix confirma sozinha mesmo assim. |
 | Reserva com prazo | Pix: 30 min (+5 de folga). Em mãos: 48 h. Vencido, o número volta a ficar livre automaticamente. |
 
@@ -75,11 +75,11 @@ Se alguém pagar um Pix **depois** que a reserva venceu e outra pessoa já pegou
 
 ## 3. Mercado Pago (Pix automático)
 
-1. Entre em <https://www.mercadopago.com.br/developers/panel/app> com a conta que vai receber o dinheiro e clique em **Criar aplicação** (tipo: pagamentos online / Checkout Transparente / API).
+1. Entre em <https://www.mercadopago.com.br/developers/panel/app> com a conta que vai receber o dinheiro e clique em **Criar aplicação** › **Criar no painel de integração** › **Checkout Transparente** › Tipo de API: **API de Orders** (a API de Payments está sendo descontinuada).
 2. Em **Credenciais de produção**, copie o **Access Token** (`APP_USR-...`). Para testar antes, use as **credenciais de teste**.
 3. Em **Webhooks › Configurar notificações**:
    - URL de produção: `https://SEU-SITE.vercel.app/api/mp-webhook`
-   - Evento: **Pagamentos**
+   - Evento: **Order** (pedidos). A API de Orders não aceita URL de notificação por cobrança, então ela precisa estar configurada aqui.
    - Salve e copie a **assinatura secreta** → `MP_WEBHOOK_SECRET`.
 4. Sua conta precisa ter uma **chave Pix cadastrada** no Mercado Pago.
 

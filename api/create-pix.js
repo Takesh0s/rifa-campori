@@ -1,6 +1,6 @@
 import { db, toHttpError } from '../lib/supabase.js';
 import { send, readJson, parseBuyer, isEmail, reservationParams } from '../lib/http.js';
-import { createPixPayment } from '../lib/mercadopago.js';
+import { createPixOrder } from '../lib/mercadopago.js';
 
 // POST /api/create-pix — reserves the numbers, then creates the Pix charge.
 // Reserving first guarantees nobody else can take the numbers while the buyer pays.
@@ -23,13 +23,13 @@ export default async function handler(req, res) {
 
   const { data: settings } = await db.from('settings').select('pix_minutes, ticket_price').single();
   try {
-    const pix = await createPixPayment({
+    const pix = await createPixOrder({
       order,
       buyer,
       minutes: settings.pix_minutes,
       unitPrice: settings.ticket_price,
     });
-    await db.from('orders').update({ mp_payment_id: pix.paymentId }).eq('id', order.id);
+    await db.from('orders').update({ mp_payment_id: pix.mpOrderId }).eq('id', order.id);
     return send(res, 200, {
       id: order.id,
       code: order.code,
