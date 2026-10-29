@@ -1,0 +1,11 @@
+{
+  "name": "rifa-campori",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Rifa Solidária – Campori 2027: site com atualização em tempo real e Pix automático",
+  "engines": { "node": ">=18" },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0"
+  }
+}

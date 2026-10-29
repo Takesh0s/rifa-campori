@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Rifa Solidária – Campori 2027</title>
+  <meta name="description" content="Escolha seus números da Rifa Solidária do Campori 2027. Prêmio de R$ 500 — apenas R$ 15 por número.">
+  <meta name="theme-color" content="#f4e8cf">
+  <meta property="og:title" content="Rifa Solidária – Campori 2027 ⛺">
+  <meta property="og:description" content="Prêmio de R$ 500 · R$ 15 por número. Escolha o seu e ajude nossa ida ao Campori!">
+  <meta property="og:image" content="/assets/og.jpg">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⛺</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+  <div id="demoBanner" class="demo-banner hidden">
+    <b>Modo demonstração</b> — preencha <code>assets/config.js</code> para ligar o site ao banco de dados.
+  </div>
+
+  <main class="wrap">
+    <header class="hero">
+      <div>
+        <h1 id="title">Rifa Solidária <span class="dash">–</span> Campori 2027</h1>
+        <p class="sub" id="subtitle">Campori DSA</p>
+        <div class="chips">
+          <span class="chip">🎁 Prêmio: <strong id="prize">R$ 500</strong></span>
+          <span class="chip">💰 <strong id="price">R$ 15</strong> por número</span>
+          <span class="chip hidden" id="drawChip">🗓️ <span id="drawInfo"></span></span>
+        </div>
+      </div>
+      <img class="tent" src="/assets/tent.png" alt="Barraca de acampamento">
+    </header>
+
+    <section class="card" aria-labelledby="goalTitle">
+      <div class="progress-head">
+        <div>
+          <h2 id="goalTitle">Rumo ao Campori!</h2>
+          <div class="raised"><span id="raised">R$ 0</span><small>arrecadados</small></div>
+        </div>
+        <div class="pct-badge" id="pct">0%</div>
+      </div>
+      <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="bar">
+        <div class="bar-fill" id="barFill"></div>
+        <div class="bar-marker" id="barMarker"><span>🔥</span></div>
+      </div>
+      <div class="milestones" id="milestones"></div>
+      <div class="progress-foot">
+        <span><span id="soldCount">0</span> de <span id="totalCount">300</span> números garantidos</span>
+        <span id="remaining" class="muted"></span>
+      </div>
+      <p class="progress-msg" id="progressMsg"></p>
+    </section>
+
+    <section class="card" aria-labelledby="wallTitle">
+      <h2 id="wallTitle">Obrigado de coração 💛</h2>
+      <p class="muted" style="margin:0">
+        <span id="supportersCount">Cada colaboração ajuda a levar nosso clube ao Campori.</span> Cada número faz diferença!
+      </p>
+      <div class="wall" id="wall" aria-live="polite"></div>
+    </section>
+
+    <section class="card" aria-labelledby="boardTitle">
+      <div class="board-head">
+        <div>
+          <h2 id="boardTitle">Escolha seus números</h2>
+          <div class="legend">
+            <span><i class="l-free"></i>Disponível</span>
+            <span><i class="l-sel"></i>Selecionado</span>
+            <span><i class="l-res"></i>Reservado</span>
+            <span><i class="l-paid"></i>Vendido</span>
+          </div>
+        </div>
+        <div class="tools">
+          <label class="toggle"><input type="checkbox" id="onlyFree"> Só disponíveis</label>
+          <button class="btn small ghost" id="luckyBtn" type="button">🎲 Me surpreenda</button>
+        </div>
+      </div>
+      <div class="grid" id="grid" aria-label="Números da rifa"></div>
+      <div class="counts" id="counts"></div>
+    </section>
+
+    <footer class="footer">
+      <div>Prefere fazer um Pix direto?</div>
+      <div class="pix">📲 Chave Pix: <b id="pixKey">61984936058</b><br><small id="pixHolder">Luiz Phillipe de Souza Santos – Banco Inter</small></div>
+      <div><small>Depois é só mandar o comprovante pelo WhatsApp ✌️</small></div>
+    </footer>
+  </main>
+
+  <div class="cart" id="cart" aria-live="polite">
+    <div class="cart-info">
+      <div class="cart-nums" id="cartNums"></div>
+      <div class="cart-total" id="cartTotal"></div>
+    </div>
+    <button class="btn small ghost" id="clearBtn" type="button">Limpar</button>
+    <button class="btn primary" id="continueBtn" type="button">Continuar →</button>
+  </div>
+
+  <dialog class="modal" id="checkout">
+    <button class="close" type="button" data-close aria-label="Fechar">×</button>
+
+    <div class="modal-body" data-step="form">
+      <h3>Quase lá! ⛺</h3>
+      <p class="muted" style="margin:0">Seus números:</p>
+      <div class="pick-list" id="pickList"></div>
+      <p style="margin:-4px 0 14px"><b>Total: <span id="modalTotal"></span></b></p>
+
+      <form id="buyerForm" novalidate>
+        <div class="field">
+          <label for="fName">Seu nome completo *</label>
+          <input id="fName" autocomplete="name" required maxlength="80" placeholder="Ex.: Maria Souza">
+        </div>
+        <div class="field">
+          <label for="fPhone">WhatsApp *</label>
+          <input id="fPhone" type="tel" inputmode="tel" autocomplete="tel" required placeholder="(61) 90000-0000">
+          <small>Para te avisarmos do sorteio.</small>
+        </div>
+        <div class="field email-field" id="emailField">
+          <label for="fEmail">E-mail *</label>
+          <input id="fEmail" type="email" autocomplete="email" placeholder="voce@email.com">
+          <small>O Mercado Pago exige um e-mail para gerar o Pix.</small>
+        </div>
+        <label class="toggle" style="margin:2px 0 14px">
+          <input type="checkbox" id="fWall" checked> Quero aparecer no mural de agradecimento 💛
+        </label>
+
+        <div class="pay-options">
+          <button type="button" class="pay-option" id="payPix">
+            <span class="ico">⚡</span><b>Pagar agora com Pix</b>
+            <small>QR Code na hora · confirmação automática</small>
+          </button>
+          <button type="button" class="pay-option whats" id="payHand">
+            <span class="ico">🤝</span><b>Pagar em mãos / falar com o Luiz</b>
+            <small>Reserva por 48h e abre o WhatsApp com a mensagem pronta</small>
+          </button>
+        </div>
+        <p class="error" id="formError" role="alert"></p>
+        <p class="muted" style="font-size:.78rem;margin:4px 0 0">🔒 Seus dados são usados só para contato sobre esta rifa e não são exibidos no site.</p>
+      </form>
+    </div>
+
+    <div class="modal-body hidden" data-step="pix">
+      <h3>Pague com Pix ⚡</h3>
+      <p class="muted" style="margin:0">Escaneie o QR Code ou copie o código no app do seu banco.</p>
+      <div class="qr-box">
+        <img id="qrImg" alt="QR Code Pix">
+        <div class="copy-row">
+          <input id="pixCode" readonly aria-label="Pix copia e cola">
+          <button class="btn small primary" id="copyPix" type="button">Copiar</button>
+        </div>
+      </div>
+      <div class="waiting"><div class="spinner"></div> Aguardando pagamento… <span class="timer" id="pixTimer"></span></div>
+      <p class="center muted" style="font-size:.85rem">Pode deixar esta tela aberta: ela atualiza sozinha quando o pagamento cair.</p>
+    </div>
+
+    <div class="modal-body hidden center" data-step="hand">
+      <div class="big-emoji">🤝</div>
+      <h3>Números reservados!</h3>
+      <p>Seus números ficam guardados por <b id="holdHours">48h</b>. Agora é só mandar a mensagem para combinar o pagamento.</p>
+      <a class="btn whats block" id="whatsLink" target="_blank" rel="noopener">Abrir conversa no WhatsApp</a>
+      <p class="muted" style="font-size:.85rem">Código da reserva: <b id="handCode"></b></p>
+    </div>
+
+    <div class="modal-body hidden center" data-step="paid">
+      <div class="big-emoji">🎉</div>
+      <h3>Pagamento confirmado!</h3>
+      <p>Muito obrigado por ajudar nosso clube a chegar no Campori! Seus números:</p>
+      <div class="pick-list" id="paidList" style="justify-content:center"></div>
+      <p class="muted">Guarde este print. Boa sorte! 🍀</p>
+      <button class="btn green" type="button" data-close>Fechar</button>
+    </div>
+
+    <div class="modal-body hidden center" data-step="problem">
+      <div class="big-emoji">⏰</div>
+      <h3 id="problemTitle">O Pix expirou</h3>
+      <p id="problemText">Os números foram liberados. Você pode escolher de novo.</p>
+      <button class="btn" type="button" data-close>Entendi</button>
+    </div>
+  </dialog>
+
+  <div class="toasts" id="toasts"></div>
+
+  <script src="/assets/vendor/supabase-2.118.0.js"></script>
+  <script src="/assets/vendor/confetti-1.9.3.js"></script>
+  <script src="/assets/config.js"></script>
+  <script src="/assets/app.js"></script>
+</body>
+</html>

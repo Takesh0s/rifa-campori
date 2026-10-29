@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Admin · Rifa Campori</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body class="admin">
+  <section class="card login-box" id="loginView">
+    <h2>Painel da rifa 🔐</h2>
+    <p class="muted" id="loginHint">Entre com o usuário que você criou no Supabase.</p>
+    <form id="loginForm">
+      <div class="field"><label for="lEmail">E-mail</label><input id="lEmail" type="email" autocomplete="username" required></div>
+      <div class="field"><label for="lPass">Senha</label><input id="lPass" type="password" autocomplete="current-password" required></div>
+      <button class="btn primary block" type="submit">Entrar</button>
+      <p class="error" id="loginError"></p>
+    </form>
+  </section>
+
+  <main class="wrap hidden" id="appView">
+    <div class="admin-top">
+      <h1>Painel da Rifa ⛺</h1>
+      <div class="row-actions">
+        <a class="btn small ghost" href="/" target="_blank">Ver site ↗</a>
+        <button class="btn small ghost" id="logoutBtn" type="button">Sair</button>
+      </div>
+    </div>
+
+    <div class="stat-row" id="stats"></div>
+
+    <div class="tabs" role="tablist">
+      <button class="tab active" data-tab="numbers" type="button">🎟️ Números</button>
+      <button class="tab" data-tab="orders" type="button">📋 Pedidos <span id="pendingBadge"></span></button>
+      <button class="tab" data-tab="settings" type="button">⚙️ Configurações</button>
+    </div>
+
+    <section data-panel="numbers">
+      <div class="admin-layout">
+        <div class="card">
+          <div class="board-head">
+            <div class="legend">
+              <span><i class="l-free"></i>Livre</span>
+              <span><i class="l-sel"></i>Selecionado</span>
+              <span><i class="l-res"></i>Reservado</span>
+              <span><i style="background:#dfe9da;border-color:#b7cdb0"></i>Pago</span>
+            </div>
+            <input class="search" id="searchName" placeholder="🔎 Buscar comprador…">
+          </div>
+          <div class="grid" id="adminGrid"></div>
+          <p class="muted" style="font-size:.85rem;margin-bottom:0">Clique em números livres para registrar uma venda feita fora do site. Clique em um número vendido/reservado para ver quem comprou.</p>
+        </div>
+
+        <aside class="card side" id="sidePanel">
+          <div id="sideEmpty">
+            <h2>Selecione números</h2>
+            <p class="muted">Escolha um ou mais números livres na grade para registrar uma venda manual (dinheiro, Pix direto…).</p>
+          </div>
+
+          <form id="saleForm" class="hidden">
+            <h2>Registrar venda</h2>
+            <div class="pick-list" id="salePick"></div>
+            <p style="margin-top:-6px"><b id="saleTotal"></b></p>
+            <div class="field"><label for="sName">Nome do comprador *</label><input id="sName" required maxlength="80"></div>
+            <div class="field"><label for="sPublic">Nome no mural</label><input id="sPublic" maxlength="40" placeholder="Opcional (ex.: Tia Netinha)"><small>Se vazio, usa o primeiro nome.</small></div>
+            <div class="field"><label for="sPhone">WhatsApp</label><input id="sPhone" type="tel" placeholder="(61) 9…"></div>
+            <div class="field"><label for="sNotes">Observação</label><input id="sNotes" placeholder="Ex.: pagou em dinheiro no culto"></div>
+            <label class="toggle" style="margin-bottom:12px"><input type="checkbox" id="sShow" checked> Mostrar no mural</label>
+            <button class="btn green block" type="submit">✓ Marcar como pago</button>
+            <button class="btn ghost block" type="button" id="saleCancel" style="margin-top:8px">Limpar seleção</button>
+            <p class="error" id="saleError"></p>
+          </form>
+
+          <div id="orderDetail" class="hidden"></div>
+        </aside>
+      </div>
+    </section>
+
+    <section data-panel="orders" class="hidden">
+      <div class="card">
+        <div class="board-head">
+          <div class="filters" id="orderFilters">
+            <button class="tab active" data-filter="pending" type="button">Pendentes</button>
+            <button class="tab" data-filter="paid" type="button">Pagos</button>
+            <button class="tab" data-filter="conflict" type="button">Conflitos</button>
+            <button class="tab" data-filter="all" type="button">Todos</button>
+          </div>
+          <button class="btn small" id="exportBtn" type="button">⬇️ Exportar CSV</button>
+        </div>
+        <div class="table-wrap" style="margin-top:12px">
+          <table class="orders">
+            <thead><tr><th>Código</th><th>Comprador</th><th>Números</th><th>Valor</th><th>Forma</th><th>Status</th><th>Data</th><th></th></tr></thead>
+            <tbody id="ordersBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section data-panel="settings" class="hidden">
+      <form class="card" id="settingsForm">
+        <h2>Configurações</h2>
+        <div class="settings-grid">
+          <div class="field"><label>Título</label><input name="title"></div>
+          <div class="field"><label>Subtítulo</label><input name="subtitle"></div>
+          <div class="field"><label>Prêmio</label><input name="prize"></div>
+          <div class="field"><label>Info do sorteio</label><input name="draw_info" placeholder="Ex.: Sorteio dia 20/12 pela Loteria Federal"></div>
+          <div class="field"><label>Meta (R$)</label><input name="goal_amount" type="number" min="1" step="0.01"></div>
+          <div class="field"><label>Texto da meta</label><input name="goal_label"></div>
+          <div class="field"><label>WhatsApp (com 55 + DDD)</label><input name="whatsapp"></div>
+          <div class="field"><label>Chave Pix (rodapé)</label><input name="pix_key"></div>
+          <div class="field"><label>Titular do Pix</label><input name="pix_holder"></div>
+          <div class="field"><label>Reserva "em mãos" (horas)</label><input name="hold_hours" type="number" min="1"></div>
+          <div class="field"><label>Validade do Pix (minutos)</label><input name="pix_minutes" type="number" min="5" max="1440"></div>
+          <div class="field"><label>Máx. números por pedido</label><input name="max_per_order" type="number" min="1"></div>
+        </div>
+        <label class="toggle" style="margin:6px 0 14px"><input type="checkbox" name="sales_open"> Vendas abertas</label>
+        <p class="muted" style="font-size:.85rem">Preço e quantidade total de números ficam fixos (R$ <span id="fixedPrice"></span> · <span id="fixedTotal"></span> números) para não bagunçar pedidos antigos.</p>
+        <button class="btn primary" type="submit">Salvar</button>
+        <span class="muted" id="settingsSaved" style="margin-left:10px"></span>
+      </form>
+    </section>
+  </main>
+
+  <div class="toasts" id="toasts"></div>
+
+  <script src="/assets/vendor/supabase-2.118.0.js"></script>
+  <script src="/assets/config.js"></script>
+  <script src="/assets/admin.js"></script>
+</body>
+</html>
