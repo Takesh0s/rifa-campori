@@ -58,19 +58,19 @@
     const total = brl(numbers.length * s.ticket_price, true);
     const qtd = numbers.length === 1 ? '1 número' : `${numbers.length} números`;
     const lines = [
-      'Olá, Luiz!',
-      `Escolhi meus números na *${s.title}*:`,
+      'Olá, Luiz! 👋',
+      `Escolhi meus números na *${s.title}* ⛺`,
       '',
-      `*Números:* ${listText(numbers)}`,
-      `*Total:* ${total} (${qtd})`,
-      `*Nome:* ${name}`,
+      `🎟️ *Números:* ${listText(numbers)}`,
+      `💰 *Total:* ${total} (${qtd})`,
+      `🙋 *Nome:* ${name}`,
       '',
       code
-        ? `Prefiro pagar *em mãos*. Já deixei reservado no site (código *#${code}*).`
-        : 'Prefiro pagar *em mãos*. Consegue reservar esses números pra mim?',
+        ? `Prefiro pagar *em mãos* 🤝 Já deixei reservado no site (código *#${code}*).`
+        : 'Prefiro pagar *em mãos* 🤝 Consegue reservar esses números pra mim?',
       'Como fica melhor pra gente combinar?',
       '',
-      'Boa sorte no Campori!',
+      'Boa sorte no Campori! 🔥',
     ];
     return whatsappLink(s.whatsapp, lines.join('\n'));
   }

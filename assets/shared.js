@@ -23,7 +23,7 @@ window.Rifa = (() => {
     : `${nums.slice(0, -1).join(', ')} e ${nums[nums.length - 1]}`);
 
   // api.whatsapp.com keeps the text intact; the wa.me redirect garbles emoji
-  // into "�" on WhatsApp Web/Desktop, so messages also avoid emoji entirely.
+  // into "�" on WhatsApp Web/Desktop.
   function whatsappLink(phone, text = '') {
     const digits = String(phone || '').replace(/\D/g, '');
     if (!digits) return null;

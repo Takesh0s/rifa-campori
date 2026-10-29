@@ -166,7 +166,7 @@
   function renderOrderDetail(o) {
     const el = $('#orderDetail');
     if (!o) { el.innerHTML = '<p class="muted">Pedido não encontrado.</p>'; return; }
-    const wa = waLink(o.buyer_phone, `Olá, ${o.buyer_name.split(' ')[0]}! Aqui é o Luiz, da Rifa do Campori.`);
+    const wa = waLink(o.buyer_phone, `Olá, ${o.buyer_name.split(' ')[0]}! Aqui é o Luiz, da Rifa do Campori ⛺`);
     el.innerHTML = `
       <h2>Pedido #${esc(o.code)}</h2>
       <p style="margin:0"><span class="badge ${o.status}">${STATUS[o.status]}</span> <span class="muted">${METHOD[o.method]}</span></p>

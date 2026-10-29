@@ -57,7 +57,7 @@
     $('#orders').innerHTML = orders.map((o) => {
       const st = STATUS[o.status] || { label: 'Desconhecido', css: 'cancelled' };
       const wa = o.status === 'pending' && o.method === 'in_person'
-        ? whatsappUrl(`Olá, Luiz! Sobre minha reserva *#${o.code}* da *${settings.title}* (números ${listText(o.numbers)}): como fica melhor pra gente combinar o pagamento?`)
+        ? whatsappUrl(`Olá, Luiz! 👋 Sobre minha reserva *#${o.code}* da *${settings.title}* (números ${listText(o.numbers)}): como fica melhor pra gente combinar o pagamento?`)
         : null;
       return `
         <article class="card order-card ${st.css}">
