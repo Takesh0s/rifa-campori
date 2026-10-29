@@ -102,7 +102,6 @@ Se alguém pagar um Pix **depois** que a reserva venceu e outra pessoa já pegou
    | `SUPABASE_SERVICE_ROLE_KEY` | chave `service_role` |
    | `MP_ACCESS_TOKEN` | Access Token do Mercado Pago |
    | `MP_WEBHOOK_SECRET` | assinatura secreta do webhook |
-   | `SITE_URL` | `https://seu-site.vercel.app` (sem `/` no final) |
    | `IP_HASH_SALT` | qualquer texto aleatório longo (ex.: gere em <https://1password.com/password-generator>) |
 
 5. **Redeploy** (variáveis novas só valem depois de um novo deploy).
