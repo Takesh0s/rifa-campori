@@ -2,17 +2,14 @@
 // users listed in `admins`, and every admin_* function re-checks is_admin().
 (() => {
   'use strict';
-  const CFG = window.RIFA_CONFIG;
-  const $ = (s) => document.querySelector(s);
-  const $$ = (s) => [...document.querySelectorAll(s)];
+  const { DEMO, client: sb, $, $$, esc, toast } = window.Rifa;
 
-  if (window.RIFA_DEMO) {
+  if (DEMO) {
     $('#loginHint').innerHTML = '⚠️ Preencha <code>assets/config.js</code> com os dados do Supabase para usar o painel.';
     $('#loginForm').querySelector('button').disabled = true;
     return;
   }
 
-  const sb = window.supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY);
   const state = {
     settings: null,
     tickets: new Map(),
@@ -22,8 +19,7 @@
     focusOrder: null,
   };
 
-  const brl = (v) => Number(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const brl = (v) => window.Rifa.brl(v, true);
   const fmtDate = (d) => d ? new Date(d).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '—';
   const sortedSel = () => [...state.selected].sort((a, b) => a - b);
   const METHOD = { pix: '⚡ Pix site', in_person: '🤝 Em mãos', manual: '✍️ Manual' };
@@ -33,13 +29,6 @@
     NAME_REQUIRED: 'Informe o nome.',
   };
   const errMsg = (e) => ERR[Object.keys(ERR).find((k) => e?.message?.includes(k))] || e?.message || 'Erro';
-
-  function toast(msg) {
-    const el = document.createElement('div');
-    el.className = 'toast'; el.textContent = msg;
-    $('#toasts').appendChild(el);
-    setTimeout(() => el.remove(), 4200);
-  }
 
   function effectiveStatus(t) {
     if (!t) return 'available';
@@ -81,6 +70,7 @@
     buildGrid();
     renderAll();
     subscribe();
+    document.dispatchEvent(new CustomEvent('rifa:admin-ready', { detail: { settings: state.settings } }));
   }
   function leave() {
     entered = false;

@@ -37,6 +37,7 @@
     <div class="tabs" role="tablist">
       <button class="tab active" data-tab="numbers" type="button">🎟️ Números</button>
       <button class="tab" data-tab="orders" type="button">📋 Pedidos <span id="pendingBadge"></span></button>
+      <button class="tab" data-tab="gallery" type="button">📸 Galeria</button>
       <button class="tab" data-tab="settings" type="button">⚙️ Configurações</button>
     </div>
 
@@ -101,6 +102,29 @@
       </div>
     </section>
 
+    <section data-panel="gallery" class="hidden">
+      <form class="card" id="galleryForm">
+        <h2>Galeria do Campori</h2>
+        <label class="toggle" style="margin:6px 0 14px"><input type="checkbox" name="gallery_enabled"> Galeria publicada (aparece no site)</label>
+        <div class="field"><label for="gTitle">Título</label><input id="gTitle" name="gallery_title" maxlength="80" required></div>
+        <div class="field"><label for="gMessage">Mensagem antes das fotos</label><textarea class="field-area" id="gMessage" name="gallery_message" maxlength="2000"></textarea></div>
+        <button class="btn primary" type="submit">Salvar</button>
+        <span class="muted" id="gallerySaved" style="margin-left:10px"></span>
+      </form>
+
+      <div class="card">
+        <h2>Fotos</h2>
+        <label class="upload-zone" id="uploadZone">
+          <span style="font-size:2rem">📤</span>
+          <span>Clique ou arraste fotos aqui</span>
+          <small class="muted">Reduzidas automaticamente e sem dados de localização (GPS)</small>
+          <input type="file" id="photoInput" accept="image/*" multiple hidden>
+        </label>
+        <p class="muted" id="uploadStatus" aria-live="polite"></p>
+        <div class="photo-admin-grid" id="photoGrid"></div>
+      </div>
+    </section>
+
     <section data-panel="settings" class="hidden">
       <form class="card" id="settingsForm">
         <h2>Configurações</h2>
@@ -130,6 +154,8 @@
 
   <script src="/assets/vendor/supabase-2.118.0.js"></script>
   <script src="/assets/config.js"></script>
+  <script src="/assets/shared.js"></script>
   <script src="/assets/admin.js"></script>
+  <script src="/assets/admin-gallery.js"></script>
 </body>
 </html>

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Meus números · Rifa Campori 2027</title>
+  <meta name="description" content="Veja os números da rifa que você comprou neste aparelho.">
+  <meta name="theme-color" content="#f4e8cf">
+  <meta property="og:title" content="Rifa Solidária – Campori 2027 ⛺">
+  <meta property="og:description" content="Prêmio de R$ 500 · R$ 15 por número. Escolha o seu e ajude nossa ida ao Campori!">
+  <meta property="og:image" content="/assets/og.jpg">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⛺</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+  <nav class="topnav wrap" aria-label="Navegação">
+    <a href="/">🎟️ Rifa</a>
+    <a href="/meus-numeros" aria-current="page">📋 Meus números <span class="nav-badge hidden" id="navMyCount"></span></a>
+    <a href="/galeria" class="hidden" id="navGallery">📸 Memórias</a>
+  </nav>
+
+  <main class="wrap">
+    <h1 class="page-title">Meus números</h1>
+    <div class="notice">
+      <span class="ico">🔒</span>
+      <p>Seus números ficam salvos <b>só neste aparelho</b>. Seus dados de compra ficam guardados com segurança com o organizador e nunca aparecem no site.</p>
+    </div>
+
+    <div id="summary" class="card hidden"></div>
+    <div id="orders"></div>
+
+    <section class="card center hidden" id="empty">
+      <div class="big-emoji">🎟️</div>
+      <h2>Nenhum número salvo aqui</h2>
+      <p class="muted">Os números aparecem aqui quando você compra pelo site neste aparelho.<br>
+        Comprou em mãos ou por outro celular? Seus números continuam garantidos: é só falar com o Luiz.</p>
+      <div class="row-actions" style="justify-content:center">
+        <a class="btn primary" href="/#boardTitle">Escolher números</a>
+        <a class="btn whats" id="emptyWhats" target="_blank" rel="noopener">Falar com o Luiz</a>
+      </div>
+    </section>
+  </main>
+
+  <div class="toasts" id="toasts"></div>
+  <script src="/assets/vendor/supabase-2.118.0.js"></script>
+  <script src="/assets/config.js"></script>
+  <script src="/assets/shared.js"></script>
+  <script src="/assets/my-numbers.js"></script>
+</body>
+</html>

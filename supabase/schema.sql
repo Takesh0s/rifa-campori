@@ -58,6 +58,17 @@ create table if not exists public.orders (
 );
 -- Salted SHA-256 of the buyer IP, used only to rate-limit reservations.
 alter table public.orders add column if not exists client_hash text;
+-- Secret kept only in the buyer's browser; lets "Meus números" read the order
+-- status. The order id is not usable for this because it is visible in `tickets`.
+-- Two v4 UUIDs = 244 random bits, using only core functions (no pgcrypto schema issues).
+alter table public.orders add column if not exists access_token text not null
+  default replace(gen_random_uuid()::text || gen_random_uuid()::text, '-', '');
+create unique index if not exists orders_access_token_idx on public.orders (access_token);
+
+alter table public.settings add column if not exists gallery_enabled boolean not null default false;
+alter table public.settings add column if not exists gallery_title text not null default 'Memórias do Campori DSA';
+alter table public.settings add column if not exists gallery_message text not null default
+  'Obrigado pela colaboração de todos! Graças ao nosso bom Deus, conseguimos o valor para o Campori, e agora quero compartilhar com vocês as memórias desse momento mágico na minha vida. 💛';
 
 create table if not exists public.tickets (
   number         int primary key,
@@ -71,9 +82,23 @@ create table if not exists public.admins (
   user_id uuid primary key references auth.users(id) on delete cascade
 );
 
+create table if not exists public.gallery_photos (
+  id          uuid primary key default gen_random_uuid(),
+  path        text not null unique,
+  caption     text,
+  sort_order  int  not null default 0,
+  created_at  timestamptz not null default now()
+);
+
 -- ---------------------------------------------------------------------------
 -- Integrity constraints (drop + add keeps the script re-runnable)
 -- ---------------------------------------------------------------------------
+
+alter table public.settings
+  drop constraint if exists settings_gallery_chk,
+  add  constraint settings_gallery_chk check (
+    char_length(gallery_title) between 1 and 80 and char_length(gallery_message) <= 2000
+  );
 
 alter table public.settings
   drop constraint if exists settings_values_chk,
@@ -100,6 +125,13 @@ alter table public.orders
     and (client_hash is null or char_length(client_hash) = 64)
   );
 
+alter table public.gallery_photos
+  drop constraint if exists gallery_photos_values_chk,
+  add  constraint gallery_photos_values_chk check (
+    path ~ '^[0-9a-f-]{36}\.(webp|jpg)$'
+    and (caption is null or char_length(caption) <= 200)
+  );
+
 alter table public.tickets
   drop constraint if exists tickets_number_chk,
   add  constraint tickets_number_chk check (number > 0);
@@ -121,6 +153,7 @@ alter table public.settings enable row level security;
 alter table public.tickets  enable row level security;
 alter table public.orders   enable row level security;
 alter table public.admins   enable row level security;
+alter table public.gallery_photos enable row level security;
 
 drop policy if exists "settings: public read"  on public.settings;
 drop policy if exists "settings: admin update" on public.settings;
@@ -128,6 +161,10 @@ drop policy if exists "tickets: public read"   on public.tickets;
 drop policy if exists "orders: admin read"     on public.orders;
 drop policy if exists "orders: admin update"   on public.orders;
 drop policy if exists "admins: self read"      on public.admins;
+drop policy if exists "gallery: read when published" on public.gallery_photos;
+drop policy if exists "gallery: admin insert"        on public.gallery_photos;
+drop policy if exists "gallery: admin update"        on public.gallery_photos;
+drop policy if exists "gallery: admin delete"        on public.gallery_photos;
 
 create policy "settings: public read"  on public.settings for select using (true);
 create policy "settings: admin update" on public.settings for update using (public.is_admin()) with check (public.is_admin());
@@ -135,17 +172,28 @@ create policy "tickets: public read"   on public.tickets  for select using (true
 create policy "orders: admin read"     on public.orders   for select using (public.is_admin());
 create policy "orders: admin update"   on public.orders   for update using (public.is_admin()) with check (public.is_admin());
 create policy "admins: self read"      on public.admins   for select using (user_id = auth.uid());
+-- Photos stay hidden until the admin publishes the gallery.
+create policy "gallery: read when published" on public.gallery_photos for select
+  using ((select gallery_enabled from public.settings where id = 1) or public.is_admin());
+create policy "gallery: admin insert" on public.gallery_photos for insert with check (public.is_admin());
+create policy "gallery: admin update" on public.gallery_photos for update using (public.is_admin()) with check (public.is_admin());
+create policy "gallery: admin delete" on public.gallery_photos for delete using (public.is_admin());
 
 -- Table privileges: defense in depth on top of RLS. Supabase grants ALL to
 -- anon/authenticated by default; reduce that to what the clients really use.
 revoke insert, update, delete, truncate on public.settings, public.tickets, public.orders, public.admins
   from anon, authenticated;
 revoke select on public.orders, public.admins from anon;
+revoke insert, update, delete, truncate on public.gallery_photos from anon;
+revoke update, truncate on public.gallery_photos from authenticated;
+grant insert, delete on public.gallery_photos to authenticated;
+grant update (caption, sort_order) on public.gallery_photos to authenticated;
 
 -- Admins may edit display/contact fields only. Status, numbers and amounts
 -- change exclusively through the functions, so they cannot drift apart.
 grant update (title, subtitle, prize, goal_amount, goal_label, draw_info, whatsapp,
-              pix_key, pix_holder, sales_open, pix_minutes, hold_hours, max_per_order)
+              pix_key, pix_holder, sales_open, pix_minutes, hold_hours, max_per_order,
+              gallery_enabled, gallery_title, gallery_message)
   on public.settings to authenticated;
 grant update (buyer_name, public_name, buyer_phone, show_on_wall, notes)
   on public.orders to authenticated;
@@ -249,7 +297,8 @@ begin
    where number = any(p_numbers);
 
   return json_build_object('id', v_order.id, 'code', v_order.code, 'numbers', v_order.numbers,
-                           'amount', v_order.amount, 'expires_at', v_order.expires_at);
+                           'amount', v_order.amount, 'expires_at', v_order.expires_at,
+                           'access_token', v_order.access_token);
 end $$;
 
 -- Idempotent: returns 'already_paid' on repeated webhooks. Returns 'conflict'
@@ -296,6 +345,20 @@ begin
                                  else left(coalesce(notes || ' | ', '') || p_note, 500) end
    where id = p_order_id;
 end $$;
+
+-- "Meus números": the browser sends the tokens it stored at purchase time.
+-- Returns no contact data; an expired-but-not-yet-swept hold already reads as expired.
+create or replace function public.get_my_orders(p_tokens text[])
+returns table (code text, numbers int[], status text, method text, amount numeric,
+               expires_at timestamptz, created_at timestamptz, paid_at timestamptz)
+language sql stable security definer set search_path = public, pg_temp as $$
+  select o.code, o.numbers,
+         case when o.status = 'pending' and o.expires_at < now() then 'expired' else o.status end,
+         o.method, o.amount, o.expires_at, o.created_at, o.paid_at
+    from orders o
+   where o.access_token = any(p_tokens[1:50])
+   order by o.created_at desc;
+$$;
 
 -- Thank-you wall: exposes only the chosen public name and a count.
 create or replace function public.get_supporters()
@@ -390,6 +453,7 @@ revoke all on function public.reserve_numbers(int[],text,text,text,text,text,boo
 revoke all on function public.confirm_order(uuid,text)                           from public, anon, authenticated;
 revoke all on function public._cancel_order(uuid,text)                           from public, anon, authenticated;
 revoke all on function public.get_supporters()                                   from public, anon, authenticated;
+revoke all on function public.get_my_orders(text[])                              from public, anon, authenticated;
 revoke all on function public.admin_register_sale(int[],text,text,text,boolean,text) from public, anon, authenticated;
 revoke all on function public.admin_confirm_order(uuid)                          from public, anon, authenticated;
 revoke all on function public.admin_cancel_order(uuid)                           from public, anon, authenticated;
@@ -399,6 +463,7 @@ revoke all on function public.admin_release_numbers(int[])                      
 -- protected table must be able to execute it.
 grant execute on function public.is_admin()        to anon, authenticated, service_role;
 grant execute on function public.get_supporters()  to anon, authenticated, service_role;
+grant execute on function public.get_my_orders(text[]) to anon, authenticated, service_role;
 grant execute on function public.release_expired() to authenticated, service_role;
 grant execute on function public.reserve_numbers(int[],text,text,text,text,text,boolean,text) to service_role;
 grant execute on function public.confirm_order(uuid,text)    to service_role;
@@ -423,6 +488,36 @@ exception when duplicate_object then null; end $$;
 do $$ begin
   alter publication supabase_realtime add table public.settings;
 exception when duplicate_object then null; end $$;
+
+-- ---------------------------------------------------------------------------
+-- Storage bucket for gallery photos
+-- ---------------------------------------------------------------------------
+-- Public bucket: files are served by URL without auth. Names are random UUIDs and
+-- the admin UI re-encodes images before upload, which strips EXIF/GPS metadata.
+-- Guarded so the script also runs on plain Postgres (local tests).
+do $$
+begin
+  if to_regclass('storage.buckets') is null then
+    return;
+  end if;
+
+  insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+  values ('gallery', 'gallery', true, 5242880, array['image/webp', 'image/jpeg'])
+  on conflict (id) do update
+    set public = excluded.public,
+        file_size_limit = excluded.file_size_limit,
+        allowed_mime_types = excluded.allowed_mime_types;
+
+  execute 'drop policy if exists "gallery: admin upload" on storage.objects';
+  execute 'drop policy if exists "gallery: admin update" on storage.objects';
+  execute 'drop policy if exists "gallery: admin delete" on storage.objects';
+  execute $p$create policy "gallery: admin upload" on storage.objects for insert to authenticated
+            with check (bucket_id = 'gallery' and public.is_admin())$p$;
+  execute $p$create policy "gallery: admin update" on storage.objects for update to authenticated
+            using (bucket_id = 'gallery' and public.is_admin())$p$;
+  execute $p$create policy "gallery: admin delete" on storage.objects for delete to authenticated
+            using (bucket_id = 'gallery' and public.is_admin())$p$;
+end $$;
 
 -- ---------------------------------------------------------------------------
 -- Seed data

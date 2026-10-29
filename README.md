@@ -110,6 +110,8 @@ Se alguém pagar um Pix **depois** que a reserva venceu e outra pessoa já pegou
 
 Páginas:
 - `https://seu-site.vercel.app` → site público
+- `https://seu-site.vercel.app/meus-numeros` → números comprados neste aparelho
+- `https://seu-site.vercel.app/galeria` → memórias do Campori (aparece quando você publicar)
 - `https://seu-site.vercel.app/admin` → painel
 
 ---
@@ -131,6 +133,10 @@ Páginas:
 - **Nome estranho no mural:** clique no número → **Nome no mural**.
 - **Mudar meta, data do sorteio, fechar vendas:** aba *Configurações*. Muda em tempo real no site.
 - **Sorteio:** *Pedidos › Exportar CSV* gera a lista número → comprador (abre no Excel).
+- **Galeria:** aba *Galeria* → envie as fotos (são reduzidas e perdem os dados de GPS antes do envio), escreva legendas, ajuste a ordem com ↑ ↓ e, quando estiver pronto, marque **Galeria publicada**. Até lá, o site mostra "Em breve".
+
+### Meus números
+Quando alguém compra pelo site, o navegador guarda um **código secreto** do pedido (a pessoa não vê). A página *Meus números* usa esse código para mostrar o status atualizado (reservado, pago, expirado). Nada é guardado no aparelho além desse código, do código curto do pedido e dos números. Quem comprou em mãos com você não aparece lá — os números continuam garantidos no sistema normalmente.
 
 ---
 
@@ -148,6 +154,8 @@ Páginas:
 | XSS / script de terceiros comprometido | Bibliotecas servidas localmente (`assets/vendor`), CSP `script-src 'self'`, todo texto do usuário escapado |
 | Clickjacking | `frame-ancestors 'none'` |
 | Função `security definer` sequestrada | `search_path = public, pg_temp` fixo em todas |
+| Alguém ver o status do pedido de outra pessoa | *Meus números* exige o token secreto (244 bits) salvo só no navegador do comprador, não o id do pedido |
+| Fotos vazando antes da hora / localização nas fotos | Tabela da galeria só é legível quando publicada; upload só por admin; fotos reencodadas no navegador, sem EXIF/GPS |
 
 Chaves: `anon` é pública por design (vai no `config.js`); `service_role`, `MP_ACCESS_TOKEN`, `MP_WEBHOOK_SECRET` e `IP_HASH_SALT` ficam **só** nas variáveis da Vercel.
 
@@ -157,10 +165,16 @@ Chaves: `anon` é pública por design (vai no `config.js`); `service_role`, `MP_
 
 ```
 ├── index.html            site público
+├── meus-numeros.html     números comprados neste aparelho
+├── galeria.html          memórias do Campori
 ├── admin.html            painel
 ├── assets/
 │   ├── config.js         URL + anon key do Supabase (público)
+│   ├── shared.js         utilitários comuns (cliente Supabase, pedidos salvos no aparelho)
 │   ├── app.js            lógica do site
+│   ├── my-numbers.js     página Meus números
+│   ├── gallery.js        galeria pública com lightbox
+│   ├── admin-gallery.js  aba Galeria do painel
 │   ├── admin.js          lógica do painel
 │   ├── style.css         visual (papel, barra animada, grade com "X")
 │   ├── vendor/           supabase-js e canvas-confetti (versões fixas, sem CDN)

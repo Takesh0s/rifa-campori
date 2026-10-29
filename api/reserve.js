@@ -14,5 +14,11 @@ export default async function handler(req, res) {
     const { status, ...body } = toHttpError(error);
     return send(res, status, body);
   }
-  return send(res, 200, { id: data.id, code: data.code, numbers: data.numbers, expires_at: data.expires_at });
+  return send(res, 200, {
+    code: data.code,
+    numbers: data.numbers,
+    amount: data.amount,
+    expiresAt: data.expires_at,
+    accessToken: data.access_token,
+  });
 }

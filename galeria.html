@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Memórias do Campori · Rifa Campori 2027</title>
+  <meta name="description" content="Fotos e memórias do Campori DSA 2027.">
+  <meta name="theme-color" content="#f4e8cf">
+  <meta property="og:title" content="Memórias do Campori DSA 📸">
+  <meta property="og:description" content="Obrigado a todos que colaboraram! Veja as fotos do Campori.">
+  <meta property="og:image" content="/assets/og.jpg">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⛺</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+  <nav class="topnav wrap" aria-label="Navegação">
+    <a href="/">🎟️ Rifa</a>
+    <a href="/meus-numeros">📋 Meus números <span class="nav-badge hidden" id="navMyCount"></span></a>
+    <a href="/galeria" class="" id="navGallery" aria-current="page">📸 Memórias</a>
+  </nav>
+
+  <main class="wrap">
+    <h1 class="page-title" id="galleryTitle">Memórias do Campori DSA</h1>
+
+    <section class="card coming-soon hidden" id="comingSoon">
+      <div class="big-emoji">📸</div>
+      <h2>Em breve!</h2>
+      <p class="muted">Depois do Campori, as fotos desse momento vão aparecer aqui. Obrigado por fazer parte disso! 💛</p>
+      <a class="btn primary" href="/">Voltar para a rifa</a>
+    </section>
+
+    <section class="card hidden" id="messageCard">
+      <p class="gallery-message" id="galleryMessage"></p>
+      <p class="muted" style="margin:10px 0 0;text-align:right">— Luiz ⛺</p>
+    </section>
+
+    <div class="masonry" id="photos"></div>
+  </main>
+
+  <dialog class="lightbox" id="lightbox" aria-label="Foto ampliada">
+    <div class="lightbox-inner">
+      <figure style="margin:0;text-align:center">
+        <img id="lbImg" alt="">
+        <figcaption id="lbCaption"></figcaption>
+      </figure>
+      <button class="lb-btn lb-prev" type="button" id="lbPrev" aria-label="Foto anterior">‹</button>
+      <button class="lb-btn lb-next" type="button" id="lbNext" aria-label="Próxima foto">›</button>
+      <button class="lb-btn lb-close" type="button" id="lbClose" aria-label="Fechar">×</button>
+    </div>
+  </dialog>
+  <script src="/assets/vendor/supabase-2.118.0.js"></script>
+  <script src="/assets/config.js"></script>
+  <script src="/assets/shared.js"></script>
+  <script src="/assets/gallery.js"></script>
+</body>
+</html>

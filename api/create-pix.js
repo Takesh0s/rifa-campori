@@ -34,6 +34,8 @@ export default async function handler(req, res) {
       id: order.id,
       code: order.code,
       numbers: order.numbers,
+      amount: order.amount,
+      accessToken: order.access_token,
       qrCode: pix.qrCode,
       qrCodeBase64: pix.qrCodeBase64,
       expiresAt: pix.expiresAt,

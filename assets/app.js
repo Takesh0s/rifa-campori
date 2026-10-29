@@ -3,9 +3,7 @@
 (() => {
   'use strict';
 
-  const CFG = window.RIFA_CONFIG;
-  const DEMO = window.RIFA_DEMO;
-  const sb = DEMO ? null : window.supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY);
+  const { DEMO, client: sb, $, esc, brl, listText, toast, myOrders } = window.Rifa;
 
   const DEFAULT_SETTINGS = {
     title: 'Rifa Solidária – Campori 2027', subtitle: 'Campori DSA', prize: 'R$ 500',
@@ -29,28 +27,12 @@
     inflight: new Set(),
   };
 
-  const $ = (s) => document.querySelector(s);
-  const brl = (v, cents = false) => Number(v).toLocaleString('pt-BR', {
-    style: 'currency', currency: 'BRL',
-    minimumFractionDigits: cents || v % 1 ? 2 : 0, maximumFractionDigits: 2,
-  });
   const sorted = (set) => [...set].sort((a, b) => a - b);
-  const listText = (nums) => nums.length <= 1 ? String(nums[0] ?? '')
-    : `${nums.slice(0, -1).join(', ')} e ${nums[nums.length - 1]}`;
-  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
   function effectiveStatus(t) {
     if (!t) return 'available';
     if (t.status === 'reserved' && t.reserved_until && new Date(t.reserved_until) < new Date()) return 'available';
     return t.status;
-  }
-
-  function toast(msg) {
-    const el = document.createElement('div');
-    el.className = 'toast';
-    el.textContent = msg;
-    $('#toasts').appendChild(el);
-    setTimeout(() => el.remove(), 4200);
   }
 
   function animateNumber(el, from, to, fmt, ms = 1400) {
@@ -136,6 +118,8 @@
     $('#holdHours').textContent = `${s.hold_hours}h`;
     $('#totalCount').textContent = s.total_numbers;
     $('#payHand small').textContent = `Reserva por ${s.hold_hours}h e abre o WhatsApp com a mensagem pronta`;
+    $('#galleryBanner').classList.toggle('hidden', !s.gallery_enabled);
+    $('#navGallery').classList.toggle('hidden', !s.gallery_enabled);
   }
 
   function buildGrid() {
@@ -398,6 +382,8 @@
 
   function startPix(order) {
     state.order = order;
+    myOrders.add({ ...order, method: 'pix' });
+    window.Rifa.initNav();
     $('#qrImg').src = `data:image/png;base64,${order.qrCodeBase64}`;
     $('#pixCode').value = order.qrCode || '';
     showStep('pix');
@@ -452,7 +438,7 @@
   function demoPix(buyer) {
     setBusy(false);
     const fakeQr = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
-    startPix({ id: 'demo', numbers: buyer.numbers, qrCode: '00020126...DEMONSTRACAO', qrCodeBase64: fakeQr, expiresAt: new Date(Date.now() + 30 * 60000).toISOString() });
+    startPix({ id: 'demo', accessToken: `demo-${Date.now()}`, code: 'DEMO', numbers: buyer.numbers, qrCode: '00020126...DEMONSTRACAO', qrCodeBase64: fakeQr, expiresAt: new Date(Date.now() + 30 * 60000).toISOString() });
     toast('Modo demonstração: simulando pagamento em 5s…');
     setTimeout(() => {
       buyer.numbers.forEach((n) => state.tickets.set(n, { number: n, status: 'paid' }));
@@ -470,10 +456,15 @@
       const { ok, status, data } = await api('/api/reserve', buyer);
       if (!ok && status === 409 && data.taken?.length) { setBusy(false); return handleTaken(data.taken); }
       if (!ok && status < 500 && status !== 404) { setBusy(false); $('#formError').textContent = data.error || 'Erro ao reservar.'; return; }
-      if (ok) code = data.code;
+      if (ok) {
+        code = data.code;
+        myOrders.add({ ...data, method: 'in_person' });
+      }
     } else {
       code = 'DEMO01';
+      myOrders.add({ accessToken: `demo-${Date.now()}`, code, numbers: buyer.numbers, method: 'in_person' });
     }
+    window.Rifa.initNav();
     setBusy(false);
     $('#whatsLink').href = whatsappMessage({ name: buyer.name, numbers: buyer.numbers, code });
     $('#handCode').textContent = code ? `#${code}` : '— (reserva pelo WhatsApp)';
@@ -541,5 +532,6 @@
     bindEvents();
     restoreBuyer();
     subscribeRealtime();
+    window.Rifa.initNav();
   })();
 })();
