@@ -133,7 +133,7 @@ a { color: var(--orange); }
 .chip strong { color: var(--orange); }
 @media (max-width: 560px) {
   .hero { grid-template-columns: 1fr; text-align: center; }
-  .hero .tent { order: -1; margin: 0 auto -6px; width: 150px; }
+  .hero .tent { order: -1; margin: 0 auto 10px; width: 150px; }
   .chips { justify-content: center; }
 }
 
