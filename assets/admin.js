@@ -50,6 +50,9 @@
     if (error) $('#loginError').textContent = 'E-mail ou senha incorretos.';
   });
   $('#logoutBtn').addEventListener('click', () => sb.auth.signOut());
+  const paintThemeBtn = () => { $('#adminTheme').textContent = window.RifaTheme?.current() === 'dark' ? '☀️' : '🌙'; };
+  paintThemeBtn();
+  $('#adminTheme').addEventListener('click', () => { window.RifaTheme?.toggle(); paintThemeBtn(); });
 
   // supabase-js deadlocks if other client calls are awaited inside this callback; defer them.
   sb.auth.onAuthStateChange((_evt, session) => { setTimeout(() => (session ? enter(session) : leave()), 0); });

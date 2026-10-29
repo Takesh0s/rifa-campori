@@ -135,6 +135,12 @@ Páginas:
 - **Sorteio:** *Pedidos › Exportar CSV* gera a lista número → comprador (abre no Excel).
 - **Galeria:** aba *Galeria* → envie as fotos (são reduzidas e perdem os dados de GPS antes do envio), escreva legendas, ajuste a ordem com ↑ ↓ e, quando estiver pronto, marque **Galeria publicada**. Até lá, o site mostra "Em breve".
 
+### App instalável e modo escuro
+- **Instalar:** no PC (Chrome/Edge) e no Android aparece o botão **Instalar** no topo; o site abre em janela própria, com ícone. No iPhone o botão mostra o passo a passo (Safari › Compartilhar › Adicionar à Tela de Início).
+- **No celular** a navegação vira barra de abas embaixo, como app.
+- **Modo escuro:** segue o sistema automaticamente; o botão 🌙/☀️ no topo fixa a escolha naquele aparelho.
+- **Offline:** o `sw.js` guarda a última versão das páginas só como reserva. Online, tudo vem sempre da rede, então números e meta nunca ficam desatualizados. Ao mudar a lista de arquivos do `SHELL` no `sw.js`, aumente a versão em `CACHE` (`rifa-shell-v2`…).
+
 ### Meus números
 Quando alguém compra pelo site, o navegador guarda um **código secreto** do pedido (a pessoa não vê). A página *Meus números* usa esse código para mostrar o status atualizado (reservado, pago, expirado). Nada é guardado no aparelho além desse código, do código curto do pedido e dos números. Quem comprou em mãos com você não aparece lá — os números continuam garantidos no sistema normalmente.
 
@@ -168,9 +174,12 @@ Chaves: `anon` é pública por design (vai no `config.js`); `service_role`, `MP_
 ├── meus-numeros.html     números comprados neste aparelho
 ├── galeria.html          memórias do Campori
 ├── admin.html            painel
+├── manifest.webmanifest  dados do app instalável (nome, ícones, cores)
+├── sw.js                 service worker (instalação e modo offline)
 ├── assets/
 │   ├── config.js         URL + anon key do Supabase (público)
-│   ├── shared.js         utilitários comuns (cliente Supabase, pedidos salvos no aparelho)
+│   ├── theme.js          aplica o tema antes da página aparecer (evita piscar)
+│   ├── shared.js         utilitários comuns, menu, instalação do app, pedidos salvos no aparelho
 │   ├── app.js            lógica do site
 │   ├── my-numbers.js     página Meus números
 │   ├── gallery.js        galeria pública com lightbox

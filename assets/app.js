@@ -119,7 +119,7 @@
     $('#totalCount').textContent = s.total_numbers;
     $('#payHand small').textContent = `Reserva por ${s.hold_hours}h e abre o WhatsApp com a mensagem pronta`;
     $('#galleryBanner').classList.toggle('hidden', !s.gallery_enabled);
-    $('#navGallery').classList.toggle('hidden', !s.gallery_enabled);
+    window.Rifa.setGalleryVisible(!!s.gallery_enabled);
   }
 
   function buildGrid() {

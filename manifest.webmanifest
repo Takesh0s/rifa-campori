@@ -1,0 +1,21 @@
+{
+  "name": "Rifa Solidária – Campori 2027",
+  "short_name": "Rifa Campori",
+  "description": "Escolha seus números, acompanhe a meta e veja as memórias do Campori DSA.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "lang": "pt-BR",
+  "background_color": "#f4e8cf",
+  "theme_color": "#f4e8cf",
+  "icons": [
+    { "src": "/assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/assets/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Meus números", "url": "/meus-numeros", "icons": [{ "src": "/assets/icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}
