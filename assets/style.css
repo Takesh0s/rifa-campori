@@ -511,3 +511,32 @@ textarea.field-area { border: 1.5px solid var(--line); background: var(--surface
   mix-blend-mode: normal; border-radius: 18px; filter: saturate(.9) brightness(.9);
   box-shadow: 0 0 0 1.5px var(--line), 0 18px 40px -18px rgba(240,122,61,.45);
 }
+
+/* ---------- Buyer report (admin-relacao) ---------- */
+.report-actions { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; padding: 18px 0 6px; }
+.report-head h1 { font-family: var(--font-title); font-weight: 400; font-size: 2.6rem; margin: 10px 0 0; }
+.report-head p { margin: 2px 0 14px; color: var(--ink-soft); font-weight: 700; }
+.report-h2 { font-family: var(--font-title); font-weight: 400; font-size: 1.8rem; margin: 22px 0 8px; }
+.report-cols { columns: 3 220px; column-gap: 18px; }
+.report-row { break-inside: avoid; display: flex; gap: 10px; align-items: baseline; padding: 4px 0; border-bottom: 1px dotted var(--line); font-size: .95rem; }
+.report-row b { font-variant-numeric: tabular-nums; min-width: 2.6em; }
+.report-row em { margin-left: auto; font-style: normal; font-size: .75rem; font-weight: 800; color: var(--res-ink); }
+.report-free { margin-top: 10px; font-size: .9rem; }
+.report-sign { margin-top: 18px; font-size: .85rem; color: var(--ink-soft); }
+.report-table tr.pending td { background: color-mix(in srgb, var(--pending-bg) 60%, transparent); }
+.hide-phones .phone-col { display: none; }
+
+@media print {
+  @page { size: A4; margin: 12mm; }
+  :root, :root[data-theme="dark"] {
+    --paper: #fff; --card: #fff; --ink: #000; --ink-soft: #333; --line: #999;
+    --surface: #fff; --pending-bg: #f3f3f3; --paid-bg: #fff; --res-ink: #000;
+  }
+  body { background: #fff !important; padding: 0 !important; }
+  .no-print, .report-actions { display: none !important; }
+  .wrap { width: 100%; }
+  .stat { border-color: #999; }
+  .report-table { font-size: 10.5pt; }
+  .report-table tr { break-inside: avoid; }
+  .badge { border-color: #000 !important; color: #000 !important; background: #fff !important; }
+}

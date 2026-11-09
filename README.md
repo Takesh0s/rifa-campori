@@ -140,6 +140,10 @@ Páginas:
 - **Modo escuro:** segue o sistema automaticamente; o botão 🌙/☀️ no topo fixa a escolha naquele aparelho.
 - **Offline:** o `sw.js` guarda a última versão das páginas só como reserva. Online, tudo vem sempre da rede, então números e meta nunca ficam desatualizados. Ao mudar a lista de arquivos do `SHELL` no `sw.js`, aumente a versão em `CACHE` (`rifa-shell-v2`…).
 
+### Cartela e relação de compradores
+- **Baixar cartela** (botão na grade do site, público): gera na hora uma imagem igual à cartela de divulgação, com os vendidos marcados com X, sem nomes. No celular abre o compartilhamento direto para o WhatsApp.
+- **Relação** (`/admin-relacao`, só para admins): lista por número e por pessoa, com quem ainda falta pagar. O botão **Imprimir / salvar PDF** gera a versão para o dia do sorteio; telefones aparecem só se marcar a opção.
+
 ### Meus números
 Quando alguém compra pelo site, o navegador guarda um **código secreto** do pedido (a pessoa não vê). A página *Meus números* usa esse código para mostrar o status atualizado (reservado, pago, expirado). Nada é guardado no aparelho além desse código, do código curto do pedido e dos números. Quem comprou em mãos com você não aparece lá — os números continuam garantidos no sistema normalmente.
 

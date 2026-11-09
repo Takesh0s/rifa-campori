@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4e8cf">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Relação de compradores · Rifa Campori</title>
+  <link rel="icon" href="/assets/icons/icon-192.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/style.css">
+  <script src="/assets/theme.js"></script>
+</head>
+<body class="admin report">
+  <main class="wrap">
+    <div class="report-actions no-print">
+      <a class="btn small ghost" href="/admin">← Painel</a>
+      <label class="toggle"><input type="checkbox" id="withPhones"> Mostrar telefones</label>
+      <label class="toggle"><input type="checkbox" id="withPending" checked> Incluir reservas não pagas</label>
+      <button class="btn small primary" id="printBtn" type="button">🖨️ Imprimir / salvar PDF</button>
+    </div>
+
+    <section class="card center hidden" id="denied">
+      <h2>Acesso restrito</h2>
+      <p class="muted">Entre no painel para ver a relação de compradores.</p>
+      <a class="btn primary" href="/admin">Ir para o painel</a>
+    </section>
+
+    <article id="report" class="hidden">
+      <header class="report-head">
+        <h1 id="rTitle">Rifa Solidária – Campori 2027</h1>
+        <p id="rMeta"></p>
+      </header>
+      <div class="stat-row" id="rStats"></div>
+
+      <h2 class="report-h2">Por número</h2>
+      <div class="report-cols" id="byNumber"></div>
+      <p class="muted report-free" id="freeList"></p>
+
+      <h2 class="report-h2">Por pessoa</h2>
+      <div class="table-wrap">
+        <table class="orders report-table">
+          <thead><tr><th>Nome</th><th class="phone-col">Telefone</th><th>Qtd</th><th>Números</th><th>Situação</th></tr></thead>
+          <tbody id="byPerson"></tbody>
+        </table>
+      </div>
+      <p class="report-sign">Gerado em <span id="rStamp"></span> a partir do sistema da rifa (rifa-campori.vercel.app).</p>
+    </article>
+  </main>
+
+  <script src="/assets/vendor/supabase-2.118.0.js"></script>
+  <script src="/assets/config.js"></script>
+  <script src="/assets/shared.js"></script>
+  <script src="/assets/report.js"></script>
+</body>
+</html>

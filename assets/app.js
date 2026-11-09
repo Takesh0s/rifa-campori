@@ -244,6 +244,25 @@
     renderCart();
   }
 
+  async function downloadPoster() {
+    const btn = $('#posterBtn');
+    btn.disabled = true;
+    try {
+      const blob = await window.RifaPoster.generate({
+        settings: state.settings,
+        total: state.settings.total_numbers,
+        statusOf: (n) => effectiveStatus(state.tickets.get(n)),
+      });
+      const day = new Date().toLocaleDateString('sv-SE'); // local YYYY-MM-DD
+      await window.RifaPoster.shareOrDownload(blob, `rifa-campori-${day}.png`, state.settings.title);
+    } catch (err) {
+      console.error(err);
+      toast('Não consegui gerar a cartela agora. Tente de novo.');
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
   function pickLucky() {
     const free = [];
     for (let n = 1; n <= state.settings.total_numbers; n++) {
@@ -486,6 +505,7 @@
       const prev = sorted(state.selected); state.selected.clear(); prev.forEach((n) => updateCell(n)); renderCart();
     });
     $('#luckyBtn').addEventListener('click', pickLucky);
+    $('#posterBtn').addEventListener('click', downloadPoster);
     $('#onlyFree').addEventListener('change', (e) => $('#grid').classList.toggle('only-free', e.target.checked));
     $('#payPix').addEventListener('click', payWithPix);
     $('#payHand').addEventListener('click', payInPerson);
