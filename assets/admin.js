@@ -44,6 +44,27 @@
     const { error } = await sb.auth.signInWithPassword({ email: $('#lEmail').value, password: $('#lPass').value });
     if (error) $('#loginError').textContent = 'E-mail ou senha incorretos.';
   });
+  $('#posterBtn').addEventListener('click', async (e) => {
+    const btn = e.currentTarget;
+    btn.disabled = true;
+    try {
+      await sb.rpc('release_expired');
+      const { data: tickets } = await sb.from('tickets').select('number, status, reserved_until');
+      const byNumber = new Map((tickets || []).map((t) => [t.number, t]));
+      const blob = await window.RifaPoster.generate({
+        settings: state.settings,
+        total: state.settings.total_numbers,
+        statusOf: (n) => effectiveStatus(byNumber.get(n)),
+      });
+      const day = new Date().toLocaleDateString('sv-SE'); // local YYYY-MM-DD
+      await window.RifaPoster.shareOrDownload(blob, `rifa-campori-${day}.png`, state.settings.title);
+    } catch (err) {
+        console.error(err);
+        toast('Não consegui gerar a cartela agora. Tente de novo.');
+    } finally {
+      btn.disabled = false;
+    }
+  });
   $('#logoutBtn').addEventListener('click', () => sb.auth.signOut());
   const paintThemeBtn = () => { $('#adminTheme').textContent = window.RifaTheme?.current() === 'dark' ? '☀️' : '🌙'; };
   paintThemeBtn();
